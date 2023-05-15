@@ -345,7 +345,8 @@ P = 2**256 - 2**32 - 977
 N = 0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141
 # end::source9[]
 
-
+# infinite field for bitcoin
+# subclass of FieldElement
 # tag::source5[]
 class S256Field(FieldElement):
 
@@ -358,6 +359,7 @@ class S256Field(FieldElement):
 
 
 # tag::source7[]
+# subclass of Point
 class S256Point(Point):
 
     def __init__(self, x, y, a=None, b=None):
@@ -368,7 +370,7 @@ class S256Point(Point):
             super().__init__(x=x, y=y, a=a, b=b)  # <1>
     # end::source7[]
 
-    def __repr__(self):
+    def __rep__(self):
         if self.x is None:
             return 'S256Point(infinity)'
         else:
@@ -388,6 +390,11 @@ class S256Point(Point):
         total = u * G + v * self  # <4>
         return total.x.num == sig.r  # <5>
     # end::source12[]
+
+    # return the binary version of the SEC format
+    def sec(self):
+        return b'\x04' + self.x.num.to_bytes(32, 'big') + self.y.num.to_bytes(32, 'big')
+
 
 
 # tag::source10[]
@@ -458,6 +465,7 @@ class PrivateKey:
     # end::source13[]
 
     # tag::source14[]
+    # produce (r,s)
     def sign(self, z):
         k = self.deterministic_k(z)  # <1>
         r = (k * G).x.num
